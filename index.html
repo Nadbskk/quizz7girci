@@ -436,6 +436,21 @@ const diceArea = document.getElementById('diceArea');
 const diceRow = document.getElementById('diceRow');
 const die1 = document.getElementById('die1');
 const die2 = document.getElementById('die2');
+  function ensureFace(el){
+  let face = el.querySelector('.face');
+  if (!face){
+    face = document.createElement('div');
+    face.className = 'face';
+    el.innerHTML = '';
+    el.appendChild(face);
+  }
+  return face;
+}
+
+function setDieFace(el, svg){
+  const face = ensureFace(el);
+  face.innerHTML = svg;
+}
 const diceResult = document.getElementById('diceResult');
 const showQuestionBtn = document.getElementById('showQuestionBtn');
 const heroDie1 = document.getElementById('heroDie1');
