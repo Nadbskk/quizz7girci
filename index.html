@@ -78,6 +78,64 @@
   @keyframes wobble{ 0%{ transform: rotateZ(0deg) } 25%{ transform: rotateZ(10deg) scale(1.05) } 50%{ transform: rotateZ(-8deg) } 75%{ transform: rotateZ(6deg) scale(1.04) } 100%{ transform: rotateZ(0deg) } }
   @media (prefers-reduced-motion: reduce){ .die.hero svg{ animation:none } }
 
+  /* === Effet 3D réaliste avec rebond === */
+
+.dice-row {
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+}
+
+.die {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Pendant l’animation (secousses + ombre dynamique) */
+.rolling .die {
+  filter: drop-shadow(0 14px 22px rgba(0,0,0,0.35));
+}
+
+/* Animation 3D principale – rebond/roulade */
+@keyframes roll3dBounce {
+  0%   { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+  8%   { transform: rotateX(120deg) rotateY(-40deg) rotateZ(25deg) scale(1.04); }
+  20%  { transform: rotateX(260deg) rotateY(10deg) rotateZ(-12deg) scale(1.03); }
+  35%  { transform: rotateX(410deg) rotateY(-20deg) rotateZ(6deg) scale(1.02); }
+  52%  { transform: rotateX(540deg) rotateY(40deg) rotateZ(-8deg) scale(1.01); }
+  72%  { transform: rotateX(650deg) rotateY(-10deg) rotateZ(4deg); }
+  88%  { transform: rotateX(720deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+  95%  { transform: rotateX(720deg) rotateY(0deg) rotateZ(0deg) translateY(-3px); }
+  100% { transform: rotateX(720deg) rotateY(0deg) rotateZ(0deg) translateY(0); }
+}
+
+/* Variante pour que les 2 dés aient une animation différente */
+@keyframes roll3dBounceAlt {
+  0%   { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+  10%  { transform: rotateX(-150deg) rotateY(30deg) rotateZ(-22deg) scale(1.04); }
+  28%  { transform: rotateX(-320deg) rotateY(-15deg) rotateZ(10deg) scale(1.03); }
+  50%  { transform: rotateX(-480deg) rotateY(20deg) rotateZ(-6deg) scale(1.02); }
+  70%  { transform: rotateX(-620deg) rotateY(-30deg) rotateZ(3deg) scale(1.01); }
+  88%  { transform: rotateX(-720deg) rotateY(0deg) rotateZ(0deg); }
+  95%  { transform: rotateX(-720deg) rotateY(0deg) rotateZ(0deg) translateY(-3px); }
+  100% { transform: rotateX(-720deg) rotateY(0deg) rotateZ(0deg) translateY(0); }
+}
+
+/* Liaison des animations */
+.rolling #die1 {
+  animation: roll3dBounce 1.15s cubic-bezier(.25,.8,.25,1) both;
+}
+
+.rolling #die2 {
+  animation: roll3dBounceAlt 1.15s cubic-bezier(.25,.8,.25,1) both;
+}
+
+/* Motion safe */
+@media (prefers-reduced-motion: reduce) {
+  .rolling #die1,
+  .rolling #die2 {
+    animation: none;
+  }
+}
   /* Feu d’artifice : canvases au premier et à l’arrière-plan (cliquables désactivés) */
   #fw-bg, #fw-fg{ position:fixed; left:0; top:0; width:100vw; height:100vh; pointer-events:none; z-index:0; display:none }
   #fw-fg{ z-index:9999 }
