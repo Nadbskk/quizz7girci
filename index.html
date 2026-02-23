@@ -436,7 +436,16 @@ const diceArea = document.getElementById('diceArea');
 const diceRow = document.getElementById('diceRow');
 const die1 = document.getElementById('die1');
 const die2 = document.getElementById('die2');
-  function ensureFace(el){
+const diceResult = document.getElementById('diceResult');
+const showQuestionBtn = document.getElementById('showQuestionBtn');
+const heroDie1 = document.getElementById('heroDie1');
+const heroDie2 = document.getElementById('heroDie2');
+
+const fwBg = document.getElementById('fw-bg');
+const fwFg = document.getElementById('fw-fg');
+let fwRunning = false;
+
+    function ensureFace(el){
   let face = el.querySelector('.face');
   if (!face){
     face = document.createElement('div');
@@ -451,15 +460,6 @@ function setDieFace(el, svg){
   const face = ensureFace(el);
   face.innerHTML = svg;
 }
-const diceResult = document.getElementById('diceResult');
-const showQuestionBtn = document.getElementById('showQuestionBtn');
-const heroDie1 = document.getElementById('heroDie1');
-const heroDie2 = document.getElementById('heroDie2');
-
-const fwBg = document.getElementById('fw-bg');
-const fwFg = document.getElementById('fw-fg');
-let fwRunning = false;
-
 function shuffle(a){
   const arr=a.slice();
   for(let i=arr.length-1;i>0;i--){
