@@ -503,8 +503,16 @@ function rollDice(){
     lastDiceSum = v1 + v2;
     const c1=pastelPalette[Math.floor(Math.random()*pastelPalette.length)];
     const c2=pastelPalette[Math.floor(Math.random()*pastelPalette.length)];
-    die1.innerHTML = renderDieSVG(v1,c1);
-    die2.innerHTML = renderDieSVG(v2,c2);
+    setDieFace(die1, renderDieSVG(v1,c1));
+    setDieFace(die2, renderDieSVG(v2,c2));
+
+/* Reset propre des animations */
+die1.style.animation = "none";
+die2.style.animation = "none";
+void die1.offsetWidth;
+void die2.offsetWidth;
+die1.style.animation = "";
+die2.style.animation = "";
     diceResult.innerHTML = `Résultat : ${v1} + ${v2} = <strong>${lastDiceSum}</strong>`;
     showQuestionBtn.style.display='inline-block';
     showQuestionBtn.focus();
