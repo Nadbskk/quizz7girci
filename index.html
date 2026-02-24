@@ -61,14 +61,7 @@
   .dice-row{ display:flex; gap:14px; align-items:center; justify-content:center }
 
   .die{ width:78px; height:78px; border-radius:14px; box-shadow:0 6px 16px rgba(0,0,0,.18); display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,.4) }
-  .rolling .die{ animation: roll .8s ease-in-out }
-  @keyframes roll{
-    0%{ transform: rotate(0deg) translateY(0) }
-    25%{ transform: rotate(10deg) translateY(-4px) }
-    50%{ transform: rotate(-10deg) translateY(2px) }
-    75%{ transform: rotate(6deg) translateY(-2px) }
-    100%{ transform: rotate(0deg) translateY(0) }
-  }
+
   .dice-result{ color:#fff; font-weight:700; text-shadow:0 2px 6px rgba(0,0,0,.25) }
 
   .dice-hero{ display:flex; gap:16px; align-items:center; justify-content:center; margin:2px 0 10px 0 }
@@ -491,20 +484,49 @@ const fwBg = document.getElementById('fw-bg');
 const fwFg = document.getElementById('fw-fg');
 let fwRunning = false;
 
-    function ensureFace(el){
-  let face = el.querySelector('.face');
-  if (!face){
-    face = document.createElement('div');
-    face.className = 'face';
-    el.innerHTML = '';
-    el.appendChild(face);
-  }
-  return face;
+  /* ====== Cube 3D : helpers pour gérer les 6 faces ====== */
+
+/* Remplit les 6 faces d’un dé avec tes SVG (on conserve ta palette) */
+function fillDieAllFaces(dieEl) {
+  dieEl.querySelector('.face-1').innerHTML = renderDieSVG(1, "#FFFFFF");
+  dieEl.querySelector('.face-2').innerHTML = renderDieSVG(2, "#FFFFFF");
+  dieEl.querySelector('.face-3').innerHTML = renderDieSVG(3, "#FFFFFF");
+  dieEl.querySelector('.face-4').innerHTML = renderDieSVG(4, "#FFFFFF");
+  dieEl.querySelector('.face-5').innerHTML = renderDieSVG(5, "#FFFFFF");
+  dieEl.querySelector('.face-6').innerHTML = renderDieSVG(6, "#FFFFFF");
 }
 
-function setDieFace(el, svg){
-  const face = ensureFace(el);
-  face.innerHTML = svg;
+/* Retourne les rotations (X,Y) pour présenter proprement la face “value” vers l’avant */
+function anglesForFace(value) {
+  switch (value) {
+    case 1: return { x:   0, y:   0 };
+    case 2: return { x:   0, y: -90 };
+    case 3: return { x:   0, y: 180 };
+    case 4: return { x:   0, y:  90 };
+    case 5: return { x: -90, y:   0 };
+    case 6: return { x:  90, y:   0 };
+    default: return { x: 0, y: 0 };
+  }
+}
+
+/* Oriente le cube pour afficher la face “value” devant, avec une petite transition clean */
+function orientDieToValue(dieEl, value, extraTurns = {x: 360, y: 360}, durationMs = 500) {
+  const { x, y } = anglesForFace(value);
+  // Récupère la rotation courante (sinon on part de 0)
+  const current = dieEl._rot || { x: 0, y: 0 };
+  // On ajoute des tours complets pour donner un effet “roulé puis stoppé”
+  const targetX = current.x % 360 + extraTurns.x + x;
+  const targetY = current.y % 360 + extraTurns.y + y;
+
+  dieEl.style.transition = `transform ${durationMs}ms cubic-bezier(.2,.8,.2,1)`;
+  dieEl.style.transform  = `rotateX(${targetX}deg) rotateY(${targetY}deg)`;
+
+  // mémorise la nouvelle position pour la suite
+  dieEl._rot = { x: targetX, y: targetY };
+
+  // Nettoie la transition après coup (pour éviter d’interférer avec l’anim “rolling”)
+  clearTimeout(dieEl._t);
+  dieEl._t = setTimeout(() => { dieEl.style.transition = 'none'; }, durationMs + 20);
 }
 function shuffle(a){
   const arr=a.slice();
@@ -564,8 +586,15 @@ function rollDice(){
     lastDiceSum = v1 + v2;
     const c1=pastelPalette[Math.floor(Math.random()*pastelPalette.length)];
     const c2=pastelPalette[Math.floor(Math.random()*pastelPalette.length)];
-    setDieFace(die1, renderDieSVG(v1,c1));
-    setDieFace(die2, renderDieSVG(v2,c2));
+ // S'assurer que les 6 faces sont remplies (une seule fois)
+if (!die1._facesReady) { fillDieAllFaces(die1); die1._facesReady = true; }
+if (!die2._facesReady) { fillDieAllFaces(die2); die2._facesReady = true; }
+
+// Oriente chaque dé sur la bonne face avec un arrêt “crédible”
+orientDieToValue(die1, v1, {x: 360 * (2 + Math.floor(Math.random()*2)),
+                            y: 360 * (2 + Math.floor(Math.random()*2))}, 600);
+orientDieToValue(die2, v2, {x: 360 * (2 + Math.floor(Math.random()*2)),
+                            y: 360 * (2 + Math.floor(Math.random()*2))}, 600);
 
     diceResult.innerHTML = `Résultat : ${v1} + ${v2} = <strong>${lastDiceSum}</strong>`;
     showQuestionBtn.style.display='inline-block';
@@ -788,7 +817,7 @@ rollDiceBtn.addEventListener('click', ()=>{
     if (hero){ hero.style.display='none'; heroRemoved=true; }
   }
   diceArea.style.display='flex';
-  die1.innerHTML=''; die2.innerHTML='';
+
   rollDice();
 });
 
@@ -802,6 +831,13 @@ showQuestionBtn.addEventListener('click', ()=>{ loadQuestion(); });
 /* Démarrage */
 startNewGame();
 showDiceScreen();
+// Construire les 6 faces des dés au démarrage
+fillDieAllFaces(die1);
+fillDieAllFaces(die2);
+// Oriente proprement au début (face 1 vers l'avant par ex.)
+orientDieToValue(die1, 1, {x:0,y:0}, 0);
+orientDieToValue(die2, 1, {x:0,y:0}, 0);
+  
 /* Affichage initial des dés décoratifs */
 (function(){
   const v1=1+Math.floor(Math.random()*6), v2=1+Math.floor(Math.random()*6);
