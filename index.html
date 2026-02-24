@@ -94,7 +94,39 @@
 .rolling .die {
   filter: drop-shadow(0 14px 22px rgba(0,0,0,0.35));
 }
+/* === Cube 3D pour chaque dé (78px de côté) === */
+.die {
+  position: relative;                 /* pour positionner les faces */
+  width: 78px;
+  height: 78px;
+  transform-style: preserve-3d;       /* INDISPENSABLE */
+}
 
+/* Chaque face du cube */
+.die .face {
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  background: #fff;                   /* fond de la face (sera recouvert par le SVG) */
+  border-radius: 14px;
+  backface-visibility: hidden;        /* INDISPENSABLE pour ne pas voir l’arrière */
+  display: grid;
+  place-items: center;                /* centre le SVG */
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.08);
+}
+
+/* Profondeur = la moitié du côté (39px) */
+.die .face-1 { transform: rotateY(   0deg) translateZ(39px); } /* avant */
+.die .face-2 { transform: rotateY(  90deg) translateZ(39px); } /* droite */
+.die .face-3 { transform: rotateY( 180deg) translateZ(39px); } /* arrière */
+.die .face-4 { transform: rotateY( -90deg) translateZ(39px); } /* gauche */
+.die .face-5 { transform: rotateX(  90deg) translateZ(39px); } /* haut */
+.die .face-6 { transform: rotateX( -90deg) translateZ(39px); } /* bas */
+
+/* Une petite ombre sympa pendant le roll (tu as déjà un drop-shadow, on garde l’esprit) */
+.rolling .die {
+  filter: drop-shadow(0 14px 22px rgba(0,0,0,0.35));
+}
 /* Animation 3D principale – rebond/roulade */
 @keyframes roll3dBounce {
   0%   { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
@@ -207,9 +239,23 @@
 
   <div id="diceArea" class="dice-area" style="display:none;">
     <div class="dice-row rolling" id="diceRow">
-      <div class="die" id="die1"></div>
-      <div class="die" id="die2"></div>
-    </div>
+  <div class="die" id="die1" aria-label="Dé 1">
+    <div class="face face-1"></div>
+    <div class="face face-2"></div>
+    <div class="face face-3"></div>
+    <div class="face face-4"></div>
+    <div class="face face-5"></div>
+    <div class="face face-6"></div>
+  </div>
+  <div class="die" id="die2" aria-label="Dé 2">
+    <div class="face face-1"></div>
+    <div class="face face-2"></div>
+    <div class="face face-3"></div>
+    <div class="face face-4"></div>
+    <div class="face face-5"></div>
+    <div class="face face-6"></div>
+  </div>
+</div>
     <div id="diceResult" class="dice-result"></div>
     <button id="showQuestionBtn" style="display:none;">Voir la question</button>
   </div>
